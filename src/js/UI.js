@@ -748,10 +748,12 @@ function setPSliderHandle(i, value, parent) {
 			}
 		});
 	}
+	var p = parent.id.slice(0, -8);
+    value = Math.min(value,params.PsizeMult[p]*5);
+
 	var r = [null];
 	r[i] = value;
 	parent.noUiSlider.set(value);
-	var p = parent.id.slice(0, -8);
 	params.PsizeMult[p] = value;
 	mouseDown = false; 
 
