@@ -254,8 +254,10 @@ function checkPlaybackFilterBox(box){
 	var pID = box.id.slice(0, playback_index);
 	this_label = document.getElementById(pID+'_PlaybackLabel');
 
+
 	//reset the text/appstate to default values
-	this_label.innerText = "Playback: "
+    this_label.childNodes[0].nodeValue = 'Playback: ';
+
 	params.parts[pID]["playbackEnabled"]=false;
 	params.updateFilter[pID]=false;
 	params.parts[p]['playbackTicks']=0;
@@ -263,7 +265,7 @@ function checkPlaybackFilterBox(box){
 		// read which fkey is currently shown 
 		this_label = document.getElementById(pID+'_PlaybackLabel');
 		// update the playback text in the UI
-		this_label.innerText += " " + params.parts[pID]['currentlyShownFilter']//"under development"//
+		this_label.childNodes[0].nodeValue += params.parts[pID]['currentlyShownFilter']//"under development"//
 
 		//flag that we should run playback
 		params.parts[pID]["playbackEnabled"]=true;
@@ -271,7 +273,6 @@ function checkPlaybackFilterBox(box){
 		params.parts[pID]['playbackFilter']=params.parts[pID][['currentlyShownFilter']]
 		console.log(params.parts[pID]['playbackFilter'])
 	}
-
 }
 
 //functions to check color of particles
@@ -2145,23 +2146,21 @@ function createUI(){
 				}
 
 				playback = filterDiv.append('label')
-					.attr('for',d+'_'+'PlaybackLabel')
-					.attr('id',d+'_PlaybackLabel')
 					.style('display','inline-block')
 					.style('margin-top','30px')
-					.text('Playback:');
+
 				playback.append('input')
 					.attr('id',d+'_PlaybackCheckbox')
 					.attr('value','false')
 					.attr('type','checkbox')
 					.attr('autocomplete','off')
 					.attr('onchange','checkPlaybackFilterBox(this)')
-					.style('display','inline-block')
+                    .style('margin-right','10px')
 
-
-
-				
-
+				playback.append('label')
+					.attr('for',d+'_'+'PlaybackLabel')
+					.attr('id',d+'_PlaybackLabel')
+					.text('Playback:');
 			} 
 			
 			dropdown.style('height',dheight+'px');
