@@ -27,6 +27,19 @@ canvas{
 	cursor: pointer;
 }
 
+#UserMessage{
+	position:absolute; 
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    color:white;
+	text-align: center;
+	font-size:10px;
+	font-size:5vmin;
+	background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    opacity:0;
+    padding:15px;
+}
 #splash{
 	position:absolute; 
 	top:0; 

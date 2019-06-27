@@ -1,3 +1,25 @@
+function showUserMessage(message,error_message_duration){
+
+	var transition_dur = 250 //ms
+	var userMessageDiv = d3.select("#UserMessage");
+	
+	//splash.style("display","block");
+
+    userMessageDiv.html(message);
+
+	userMessageDiv.transition()
+		.ease(d3.easeLinear)
+		.duration(transition_dur)
+		.style("opacity", 1);
+
+    setTimeout(function(){
+        userMessageDiv.transition()
+            .ease(d3.easeLinear)
+            .duration(transition_dur)
+            .style("opacity", 0);
+        }, error_message_duration);
+}
+
 //reset to the initial Options file
 function resetToOptions(){
 	console.log("Resetting to Default");
@@ -749,6 +771,11 @@ function setPSliderHandle(i, value, parent) {
 		});
 	}
 	var p = parent.id.slice(0, -8);
+    if (value > params.PsizeMult[p]*5){
+	    showUserMessage(
+        "Particle size increase limited<br>to 5x current size",
+        3000); // ms
+    }
     value = Math.min(value,params.PsizeMult[p]*5);
 
 	var r = [null];
