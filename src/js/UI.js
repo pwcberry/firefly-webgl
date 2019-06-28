@@ -96,6 +96,8 @@ function resetToPreset(preset){
 	params.reset = true;
 	//reset all the parts specific values to the initial ones
 	initPVals();
+    console.log('after initPVals',params.colormapVals.Gas)
+
 
     initScene();
 
@@ -109,6 +111,7 @@ function resetToPreset(preset){
 	//destroy the particle portion of the UI and recreate it (simplest option, but not really destroying all elements...)
 	d3.select('#particleUI').html("");
 	createUI();
+
 
 	drawScene();
 	params.reset = false;
@@ -1377,17 +1380,8 @@ function selectFilter() {
 		.style('display','inline-block');
 }
 
-function selectColormapVariable() {
-	var option = d3.select(this)
-		.selectAll("option")
-		.filter(function (d, i) { 
-			return this.selected; 
-	});
-	selectValue = option.property('value');
-
-	var p = this.id.slice(0,-14)
-
-	for (var i=0; i<params.ckeys[p].length; i+=1){
+function helper_selectColormapVariable(selectValue,p){
+    for (var i=0; i<params.ckeys[p].length; i+=1){
 		d3.selectAll('#'+p+'_CK_'+params.ckeys[p][i]+'_END_CMap')
 			.style('display','none');
 	}
@@ -1403,8 +1397,35 @@ function selectColormapVariable() {
 		drawScene(pDraw = [p]);
 		fillColorbarContainer(p);
 	}
+
 }
 
+function selectColormapVariable() {
+	var option = d3.select(this)
+		.selectAll("option")
+		.filter(function (d, i) { 
+			return this.selected; 
+	});
+
+    // read the particle type and the value we clicked
+	var p = this.id.slice(0,-14)
+	selectValue = option.property('value');
+
+    // set the colormap state
+    helper_selectColormapVariable(selectValue,p);
+	
+}
+
+function helper_selectColormap(selectValue,p){
+    // update colormap
+	params.colormap[p] = ((params.colormapList.indexOf(selectValue)) + 0.5) * (8/256);
+
+	// redraw particle type if colormap is on
+	if (params.showColormap[p]){
+		//drawScene(pDraw = [p]);
+		fillColorbarContainer(p);
+	}
+}
 function selectColormap() {
 	var option = d3.select(this)
 		.selectAll("option")
@@ -1415,15 +1436,7 @@ function selectColormap() {
 
 	var p = this.id.slice(0,-11)
 
-	// update colormap
-	params.colormap[p] = ((params.colormapList.indexOf(selectValue)) + 0.5) * (8/256);
-	console.log(p, " selected colormap:", params.colormapList[params.colormapList.indexOf(selectValue)], params.colormap[p])
-
-	// redraw particle type if colormap is on
-	if (params.showColormap[p]){
-		//drawScene(pDraw = [p]);
-		fillColorbarContainer(p);
-	}
+	helper_selectColormap(selectValue,p);
 }
 
 

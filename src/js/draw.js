@@ -48,8 +48,11 @@ function drawScene(pdraw = params.partsKeys)
 			transp = true; //still need this because I use alpha to set control filtering!
 		}
 
+        console.log('making a new material with:',
+            params.colormapVals[p][params.ckeys[p][params.colormapVariable[p]]],
+            params.ckeys[p][params.colormapVariable[p]])
+                
 		var material = new THREE.ShaderMaterial( {
-
 			uniforms: { //add uniform variable here
 				color: {value: new THREE.Vector4( params.Pcolors[p][0], params.Pcolors[p][1], params.Pcolors[p][2], params.Pcolors[p][3])},
 				oID: {value: 0},
