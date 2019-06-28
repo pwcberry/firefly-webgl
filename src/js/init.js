@@ -286,7 +286,6 @@ function initScene() {
 	params.camera.position.set(params.center.x, params.center.y, params.center.z - params.boxSize/2.);
 	params.camera.lookAt(params.scene.position);  
 
-
 	//apply presets from the options file
 	applyOptions();
 
@@ -517,6 +516,8 @@ function applyOptions(){
 							var ckey = params.ckeys[p][k]
 							if (params.parts.options.colormapLims[p].hasOwnProperty(ckey)){
 								if (params.parts.options.colormapLims[p][ckey] != null){
+                                    console.log("setting colormap lim to",
+                                        params.parts.options.colormapLims[p][ckey])
 									params.colormapLims[p][ckey] = []
 									params.colormapLims[p][ckey].push(params.parts.options.colormapLims[p][ckey][0]);
 									params.colormapLims[p][ckey].push(params.parts.options.colormapLims[p][ckey][1]);
@@ -537,7 +538,7 @@ function applyOptions(){
 						params.updateColormap[p] = true
 
 						for (k=0; k<params.ckeys[p].length; k++){
-							var fkey = params.ckeys[p][k]
+							var ckey = params.ckeys[p][k]
 							if (params.parts.options.colormapVals[p].hasOwnProperty(ckey)){
 								if (params.parts.options.colormapVals[p][ckey] != null){
 									params.colormapVals[p][ckey] = []
@@ -552,9 +553,53 @@ function applyOptions(){
 			}
 		}
 
+        //start plotting with a colormap
+		if (params.parts.options.hasOwnProperty("showColormap")){
+			if (params.parts.options.showColormap != null){
+				if (params.parts.options.showColormap.hasOwnProperty(p)){
+					if (params.parts.options.showColormap[p] == true){
+						params.updateColormap[p] = true
+						params.showColormap[p] = true;
+						if (params.haveUI){
+							elm = document.getElementById(p+'colorCheckBox');
+							elm.checked = true;
+							elm.value = true;
+						}
+					}
+				}
+			}
+		}//start plotting with a colormap
 
-	}
-}
+        //choose which colormap to use
+		if (params.parts.options.hasOwnProperty("colormap") && 
+		    params.parts.options.colormap != null &&
+			params.parts.options.colormap.hasOwnProperty(p) && 
+            params.parts.options.colormap[p] != null){
+
+            // passed the index as a pixel fraction out of 256
+            idx = params.parts.options.colormap[p];
+            idx = params.colormapList[(idx * 256/8) - 0.5];
+
+            helper_selectColormap(
+                idx,
+                p);
+
+		}//choose which colormap to use
+
+        //select the colormap variable to color by
+		if (params.parts.options.hasOwnProperty("colormapVariable") && 
+		    params.parts.options.colormapVariable != null &&
+			params.parts.options.colormapVariable.hasOwnProperty(p) && 
+            params.parts.options.colormapVariable[p] != null){
+
+                var idx = params.parts.options.colormapVariable[p];
+                helper_selectColormapVariable(
+                    params.ckeys[p][idx],
+                    p);
+		}//select the colormap variable to color by
+
+	}//particle specific options
+}//apply options
 
 function calcMinMax(p,key, addFac = true){
 	var i=0;
@@ -718,28 +763,57 @@ function initPVals(){
 		params.ckeys[p] = ["null"];
 		params.colormapLims[p]["null"] = [0,1];
 		params.colormapVals[p]["null"] = [0,1];
-		if (params.parts[p].hasOwnProperty("colormapKeys")){
-			if (params.parts[p].colormapKeys.length > 0){
-				params.ckeys[p] = params.parts[p].colormapKeys;
-				for (var k=0; k<params.ckeys[p].length; k++){
-					if (params.ckeys[p][k] == "Velocities"){
-						params.ckeys[p][k] = "magVelocities";
-					}
-					var ckey = params.ckeys[p][k];
-					params.colormapLims[p][ckey] = [0,1];
-					params.colormapVals[p][ckey] = [0,1];
-					if (params.parts[p][ckey] != null){
-						//could probably take results from filter to save time, but will do this again to be safe
-						var m = calcMinMax(p,ckey)
-						params.colormapLims[p][ckey] = [m.min, m.max];
-						params.colormapVals[p][ckey] = [m.min, m.max];
-					}
-				}
-			}
-		}
+        // if there are things to colormap by
+		if (params.parts[p].hasOwnProperty("colormapKeys") &&
+            params.parts[p].colormapKeys.length > 0){
+
+            params.ckeys[p] = params.parts[p].colormapKeys;
+
+            // for each ckey
+            for (var k=0; k<params.ckeys[p].length; k++){
+                if (params.ckeys[p][k] == "Velocities"){
+                    params.ckeys[p][k] = "magVelocities";
+                }
+                var ckey = params.ckeys[p][k];
+                // if we need to set default colormap vals
+                console.log(p,'default value:',params.colormapLims[ckey],ckey,
+                    params.parts.options.colormapVals[p][ckey],
+                    params.parts.options.colormapLims[p][ckey],
+                    params.parts.options.colormapVals[p[ckey]]
+                )
+
+                // if this array even exists in the particle data
+                if (params.parts[p][ckey] != null){
+                    //could probably take results from filter to save time, but will do this again to be safe
+                    var m = calcMinMax(p,ckey)
+                    if (!params.parts.options.colormapLims[p].hasOwnProperty(ckey) ||
+                        params.parts.options.colormapLims[p][ckey]==null){
+                        params.colormapLims[p][ckey] = [0,1];
+                        params.colormapLims[p][ckey] = [m.min, m.max];
+                    }
+                    else{
+                        console.log('setting the colormap lims to preset')
+                        params.colormapLims[p][ckey] = params.parts.options.colormapLims[p][ckey];
+                    }// if we need to set the default colormap lims
+                    if (!params.parts.options.colormapVals[p].hasOwnProperty(ckey) || 
+                        params.parts.options.colormapVals[p][ckey]==null){
+                        params.colormapVals[p][ckey] = [0,1];
+                        params.colormapVals[p][ckey] = [m.min, m.max];
+                    }
+                    else{
+                        params.colormapVals[p][ckey] =[params.parts.options.colormapVals[p][ckey][0],
+                           params.parts.options.colormapVals[p][ckey][1]];
+                        console.log('setting the colormap vals to preset',
+                        p,ckey,
+                        params.colormapVals[p][ckey],
+                        params.colormapVals[p],
+                        params.colormapVals[p]['magVelocities']);
+                    }// if we need to set default colormap vals
+                }// if this array even exists in the particle data
+            }// for each ckey
+		}// if there are things to colormap by
+        console.log('after setting values',params.colormapVals.Gas)
 	}
-
-
 }
 
 function setCenter(coords){
@@ -1073,6 +1147,7 @@ function WebGLStart(){
 
 	initPVals();
 
+    console.log(params)
 	initScene();
 	
 	initColumnDensity();
