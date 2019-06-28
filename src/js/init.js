@@ -50,7 +50,7 @@ function defineParams(){
 
 		//for frustum      
 		this.zmax = 5.e10;
-		this.zmin = 1;
+		this.zmin = .1;
 		this.fov = 45.
 
 		// for dropdowns
@@ -286,12 +286,8 @@ function initScene() {
 	params.camera.position.set(params.center.x, params.center.y, params.center.z - params.boxSize/2.);
 	params.camera.lookAt(params.scene.position);  
 
-	//apply presets from the options file
-	applyOptions();
-
 	// controls
 	initControls();
-
 }
 
 
@@ -776,11 +772,13 @@ function initPVals(){
                 }
                 var ckey = params.ckeys[p][k];
                 // if we need to set default colormap vals
+                /*
                 console.log(p,'default value:',params.colormapLims[ckey],ckey,
                     params.parts.options.colormapVals[p][ckey],
                     params.parts.options.colormapLims[p][ckey],
                     params.parts.options.colormapVals[p[ckey]]
                 )
+                */
 
                 // if this array even exists in the particle data
                 if (params.parts[p][ckey] != null){
@@ -803,16 +801,18 @@ function initPVals(){
                     else{
                         params.colormapVals[p][ckey] =[params.parts.options.colormapVals[p][ckey][0],
                            params.parts.options.colormapVals[p][ckey][1]];
+                        /*
                         console.log('setting the colormap vals to preset',
-                        p,ckey,
-                        params.colormapVals[p][ckey],
-                        params.colormapVals[p],
-                        params.colormapVals[p]['magVelocities']);
+                            p,ckey,
+                            params.colormapVals[p][ckey],
+                            params.colormapVals[p],
+                            params.colormapVals[p]['magVelocities']);
+                        */
                     }// if we need to set default colormap vals
                 }// if this array even exists in the particle data
             }// for each ckey
 		}// if there are things to colormap by
-        console.log('after setting values',params.colormapVals.Gas)
+        //console.log('after setting values',params.colormapVals.Gas)
 	}
 }
 
@@ -1124,7 +1124,6 @@ function moveLoadingBar(){
 //check if the data is loaded
 function clearloading(){
 	params.loaded = true;
-	params.reset = false;
 
 	//show the rest of the page
 	d3.select("#ContentContainer").style("visibility","visible")
@@ -1135,9 +1134,55 @@ function clearloading(){
 
 }
 
-function WebGLStart(){
+function beginApp(){
+    // define each particle group into params
+    console.log(params.reset)
+	initPVals();
+    console.log(params)
+    console.log(params.reset)
 
-//reset the window title
+    // create webgl context and initialize camera and input
+	initScene();
+    console.log(params.reset)
+
+	// apply inital app-state from the options file
+	applyOptions();
+    console.log(params.reset)
+	
+    //
+	initColumnDensity();
+    console.log(params.reset)
+
+    // destroy the UI if we are resetting to a preset file
+    if (params.reset){
+        var elm = document.getElementsByClassName('UIcontainer')[0];
+        elm.innerHTML=""
+        //d3.select('#UIcontainer').html("");
+        /*
+        //resize the bottom of the UI if necessary
+        var i = params.partsKeys.length-1;
+        var pID = params.partsKeys[i];
+        if (!params.gtoggle[pID]){
+            var elm = document.getElementById(pID+'Dropbtn');
+            showFunction(elm);
+        }
+        //destroy the particle portion of the UI and recreate it (simplest option, but not really destroying all elements...)
+        d3.select('#particleUI').html("");
+        */
+    }
+
+    // programatically create nested dropdown UI with d3.js
+	createUI();
+
+	mouseDown = false;  //silly fix
+
+	// create threejs meshes 
+	drawScene();
+}
+
+function WebGLStart(){
+    params.reset=false
+    //reset the window title
 	if (params.parts.options.hasOwnProperty('title')){
 		window.document.title = params.parts.options.title
 	}
@@ -1145,21 +1190,15 @@ function WebGLStart(){
 	document.addEventListener('mousedown', handleMouseDown);
 	document.addEventListener('mouseup', handleMouseUp);
 
-	initPVals();
+    // add any additional divs
+    defineColorbarContainer();
 
-    console.log(params)
-	initScene();
-	
-	initColumnDensity();
-	
-	createUI();
-	mouseDown = false;  //silly fix
+    // initialize params, divs, particle meshes, etc...
+    beginApp();
 
-	//draw everything
-	drawScene();
-
-	//begin the animation
-	// keep track of runtime for crashing the app rather than the computer
+	// begin the animation
+	//  keep track of runtime for pausing the app rather than 
+    //  crash the computer if spend more than 2 seconds
 	var currentTime = new Date();
 	var seconds = currentTime.getTime()/1000;
 	params.currentTime = seconds;
