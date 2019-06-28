@@ -26,25 +26,11 @@ function resetToOptions(){
 	params.parts.options = params.parts.options0;
 
 	params.reset = true;
-	//reset all the parts specific values to the initial ones
-	initPVals();
-
-    initScene();
-
-	//resize the bottom of the UI if necessary
-	var i = params.partsKeys.length-1;
-	var pID = params.partsKeys[i];
-	if (!params.gtoggle[pID]){
-		var elm = document.getElementById(pID+'Dropbtn');
-		showFunction(elm);
-	}
-	//destroy the particle portion of the UI and recreate it (simplest option, but not really destroying all elements...)
-	d3.select('#particleUI').html("");
-	createUI();
-
-	drawScene();
+	
+    // initialize params, divs, particle meshes, etc...
+    beginApp();
+	
 	params.reset = false;
-
 }
 
 //to load in a new data set
@@ -88,34 +74,18 @@ function readPreset(file){
 		}
 	}
 }
+
 function resetToPreset(preset){
 	console.log("Resetting to Preset");
 	document.getElementById("presetFile").value = "";
 	params.parts.options = preset;
 
 	params.reset = true;
-	//reset all the parts specific values to the initial ones
-	initPVals();
-    console.log('after initPVals',params.colormapVals.Gas)
-
-
-    initScene();
-
-	//resize the bottom of the UI if necessary
-	var i = params.partsKeys.length-1;
-	var pID = params.partsKeys[i];
-	if (!params.gtoggle[pID]){
-		var elm = document.getElementById(pID+'Dropbtn');
-		showFunction(elm);
-	}	
-	//destroy the particle portion of the UI and recreate it (simplest option, but not really destroying all elements...)
-	d3.select('#particleUI').html("");
-	createUI();
-
-
-	drawScene();
+	
+    // initialize params, divs, particle meshes, etc...
+    beginApp();
+	
 	params.reset = false;
-
 }
 
 //check whether the center is locked or not
@@ -430,7 +400,11 @@ function createFilterSliders(){
 				params.SliderF[p][fk] = document.getElementById(p+'_FK_'+fk+'_END_FilterSlider');
 				params.SliderFmin[p][fk] = document.getElementById(p+'_FK_'+fk+'_END_FilterMinT');
 				params.SliderFmax[p][fk] = document.getElementById(p+'_FK_'+fk+'_END_FilterMaxT');
-				if (params.SliderF[p][fk] != null && params.SliderFmin[p][fk] != null && params.SliderFmax[p][fk] != null && params.filterLims[p][fk] != null){
+				if (params.SliderF[p][fk] != null && 
+                    params.SliderFmin[p][fk] != null && 
+                    params.SliderFmax[p][fk] != null && 
+                    params.filterLims[p][fk] != null){
+
 					if (params.SliderF[p][fk].noUiSlider) {
 						params.SliderF[p][fk].noUiSlider.destroy();
 					}
@@ -615,8 +589,10 @@ function createCMapSliders(){
 					params.SliderCMapinputs[p][ck] = [params.SliderCMapmin[p][ck], params.SliderCMapmax[p][ck]];
 					params.SliderCMapinputs[p][ck][0].parent = params.SliderCMap[p][ck];
 					params.SliderCMapinputs[p][ck][1].parent = params.SliderCMap[p][ck];
-					min = parseFloat(params.colormapLims[p][ck][0].toFixed(3));
-					max = parseFloat(params.colormapLims[p][ck][1].toFixed(3));
+                    // NOTE: toFixed commented out by ABG on 6/28 because I don't know
+                    //  why it's here, one day something will break and we'll put it back haha
+					min = parseFloat(params.colormapLims[p][ck][0]);//.toFixed(3));
+					max = parseFloat(params.colormapLims[p][ck][1]);//.toFixed(3));
 
 					noUiSlider.create(params.SliderCMap[p][ck], {
 						start: [min, max],
@@ -642,7 +618,11 @@ function createCMapSliders(){
 
 						var nf = parseFloat(values[handle])/ (Math.round(1000.*params.colormapVals[pp][ffk][handle])/1000.);
 						params.SliderCMapinputs[pp][ffk][handle].value = values[handle];
-						params.colormapVals[pp][ffk][handle] = parseFloat(values[handle]);
+
+                        // TODO this overwrites the cmapVals because the handles aren't
+                        //  being properly initialized...
+                        params.colormapVals[pp][ffk][handle] = parseFloat(values[handle]);
+
 						if (params.showColormap[pp]){
 							fillColorbarContainer(pp);
 						}
@@ -1390,10 +1370,10 @@ function helper_selectColormapVariable(selectValue,p){
 
 	// update colormap variable
 	params.colormapVariable[p] = params.ckeys[p].indexOf(selectValue);
-	console.log(p, "colored by:", params.ckeys[p][params.colormapVariable[p]])
 
 	// redraw particle type if colormap is on
 	if (params.showColormap[p]){
+        console.log(p, "colored by:", params.ckeys[p][params.colormapVariable[p]])
 		drawScene(pDraw = [p]);
 		fillColorbarContainer(p);
 	}
@@ -1456,41 +1436,37 @@ function selectVelType() {
 function createUI(){
 	console.log("Creating UI");
         
-        var use_color_id = null
-
 //change the hamburger to the X to start
-	if (! params.reset){
 
-		var UIcontainer = d3.select('.UIcontainer');
+    var UIcontainer = d3.select('.UIcontainer');
 
-		UIcontainer.attr('style','position:absolute; top:10px; left:10px; width:300px');
+    UIcontainer.attr('style','position:absolute; top:10px; left:10px; width:300px');
 
-		var UIt = UIcontainer.append('div')
-			.attr('class','UItopbar')
-			.attr('id','UItopbar')
-			.attr('onmouseup','hideUI(this);')
-			.attr('onmousedown','dragElement(this, event);');
+    var UIt = UIcontainer.append('div')
+        .attr('class','UItopbar')
+        .attr('id','UItopbar')
+        .attr('onmouseup','hideUI(this);')
+        .attr('onmousedown','dragElement(this, event);');
 
-		UIt.append('table');
-		var UIr1 = UIt.append('tr');
-		var UIc1 = UIr1.append('td')
-			.style('padding-left','5px')
-			.attr('id','Hamburger')
-		UIc1.append('div').attr('class','bar1');
-		UIc1.append('div').attr('class','bar2');
-		UIc1.append('div').attr('class','bar3');
-		var UIc2 = UIr1.append('td').append('div')
-			.attr('id','ControlsText')
-			.style('font-size','16pt')
-			.style('padding-left','5px')
-			.style('top','6px')
-			.style('position','absolute')
-			.append('b').text('Controls');
+    UIt.append('table');
+    var UIr1 = UIt.append('tr');
+    var UIc1 = UIr1.append('td')
+        .style('padding-left','5px')
+        .attr('id','Hamburger')
+    UIc1.append('div').attr('class','bar1');
+    UIc1.append('div').attr('class','bar2');
+    UIc1.append('div').attr('class','bar3');
+    var UIc2 = UIr1.append('td').append('div')
+        .attr('id','ControlsText')
+        .style('font-size','16pt')
+        .style('padding-left','5px')
+        .style('top','6px')
+        .style('position','absolute')
+        .append('b').text('Controls');
 
-		var hider = UIcontainer.append('div').attr('id','UIhider');
-		hider.append('div').attr('id','particleUI');
+    var hider = UIcontainer.append('div').attr('id','UIhider');
+    hider.append('div').attr('id','particleUI');
 
-	 }
 
 	//set the gtoggle Object (in correct order)
 	params.gtoggle.dataControls = true;
@@ -2007,7 +1983,11 @@ function createUI(){
 
 
 			if (ncolor > 0){
-                                use_color_id = d
+                //create the colorbar container
+                if (params.showColormap[d]){
+                    fillColorbarContainer(d);
+                }
+
 				dheight += 50;
 
 				dropdown.append('hr')
@@ -2255,19 +2235,10 @@ function createUI(){
 	params.haveUI = true;
 
 	//hide the UI initially
-	if (!params.reset){
-		var hamburger = document.getElementById('UItopbar');
-		hideUI(hamburger);
-		hamburger.classList.toggle("change");
-	}
-
-	//create the colorbar container
-        if (use_color_id != null){
-            defineColorbarContainer(use_color_id)
-            if (params.showColormap[use_color_id]){
-                    fillColorbarContainer(use_color_id);
-            }
-        }
+    var hamburger = document.getElementById('UItopbar');
+    hideUI(hamburger);
+    hamburger.classList.toggle("change");
+    
 }
 
 function applyUIoptions(){
@@ -2329,27 +2300,41 @@ function applyUIoptions(){
 		var p = params.partsKeys[i];
 
 		//filter values
-		if (params.parts.options.hasOwnProperty("filterVals")){
-			if (params.parts.options.filterVals != null){
-				if (params.parts.options.filterVals.hasOwnProperty(p)){
-					if (params.parts.options.filterVals[p] != null){
-						//because we are now redrawing each time, we do not need to do this
-						params.updateFilter[p] = true
+		if (params.parts.options.hasOwnProperty("filterVals") &&
+		    params.parts.options.filterVals != null && 
+			params.parts.options.filterVals.hasOwnProperty(p) && 
+		    params.parts.options.filterVals[p] != null){
+            //because we are now redrawing each time, we do not need to do this
+            params.updateFilter[p] = true
 
-						for (k=0; k<params.fkeys[p].length; k++){
-							var fkey = params.fkeys[p][k]
-							if (params.parts.options.filterVals[p].hasOwnProperty(fkey)){
-								if (params.parts.options.filterVals[p][fkey] != null){
-									params.SliderF[p][fkey].noUiSlider.set(params.parts.options.filterVals[p][fkey]);
-								}
-							}
-						}
+            for (k=0; k<params.fkeys[p].length; k++){
+                var fkey = params.fkeys[p][k]
+                if (params.parts.options.filterVals[p].hasOwnProperty(fkey)){
+                    if (params.parts.options.filterVals[p][fkey] != null){
+                        params.SliderF[p][fkey].noUiSlider.set(params.parts.options.filterVals[p][fkey]);
+                    }
+                }
+            }
+		}// filter values
 
-					}
-				}
-			}
-		}
-	}
+        //colormap values
+		if (params.parts.options.hasOwnProperty("colormapVals") &&
+		    params.parts.options.colormapVals != null && 
+			params.parts.options.colormapVals.hasOwnProperty(p) && 
+		    params.parts.options.colormapVals[p] != null){
+            //because we are now redrawing each time, we do not need to do this
+            params.updateFilter[p] = true
+
+            for (k=0; k<params.ckeys[p].length; k++){
+                var ckey = params.ckeys[p][k]
+                if (params.parts.options.colormapVals[p].hasOwnProperty(ckey)){
+                    if (params.parts.options.colormapVals[p][ckey] != null){
+                        params.SliderCMap[p][ckey].noUiSlider.set(params.parts.options.colormapVals[p][ckey]);
+                    }
+                }
+            }
+		}// colormap values
+	}//particle specific options
 }
 
 //hide the splash screen
@@ -2661,7 +2646,7 @@ function dragColorbarElement(elm, e) {
 	}
 }
 
-function defineColorbarContainer(particle_group_UIname){
+function defineColorbarContainer(){
 	var text_height = 40;
 	var container_margin = {"top":10,"side":15}
 	var container_width = 300 
@@ -2672,8 +2657,8 @@ function defineColorbarContainer(particle_group_UIname){
 	var container_top = 138; 
 	var container_left = 188;
 
-        console.log(params.colormapVals);
-	var minmax = params.colormapVals[particle_group_UIname][params.ckeys[particle_group_UIname][params.colormapVariable[particle_group_UIname]]]
+	var minmax = [0,1]
+    //params.colormapVals[particle_group_UIname][params.ckeys[particle_group_UIname][params.colormapVariable[particle_group_UIname]]]
 	var xmin = minmax[0]
 	var xmax = minmax[1]
 
@@ -2736,6 +2721,7 @@ function defineColorbarContainer(particle_group_UIname){
 		.attr('class','colorbar_label') // hardcode background color in index.css, why isn't this inherited??
 
 	colorbar_container.classed('hidden', true)
+
 }
 
 function fillColorbarContainer( particle_group_UIname){
@@ -2781,9 +2767,6 @@ function fillColorbarContainer( particle_group_UIname){
 	//change the label
 	var colorbar_label = particle_group_UIname + ' ' +  params.ckeys[particle_group_UIname][params.colormapVariable[particle_group_UIname]]
 	d3.select('.colorbar_label').html(colorbar_label)
-
-
-
 }
 
 function changeSnapSizes(){

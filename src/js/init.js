@@ -455,115 +455,94 @@ function applyOptions(){
 		}
 
 		//filter limits
-		if (params.parts.options.hasOwnProperty("filterLims")){
-			if (params.parts.options.filterLims != null){
-				if (params.parts.options.filterLims.hasOwnProperty(p)){
-					if (params.parts.options.filterLims[p] != null){
-						params.updateFilter[p] = true
+		if (params.parts.options.hasOwnProperty("filterLims") &&
+            params.parts.options.filterLims != null &&
+            params.parts.options.filterLims.hasOwnProperty(p) &&
+            params.parts.options.filterLims[p] != null){
+            params.updateFilter[p] = true
 
-						for (k=0; k<params.fkeys[p].length; k++){
-							var fkey = params.fkeys[p][k]
-							if (params.parts.options.filterLims[p].hasOwnProperty(fkey)){
-								if (params.parts.options.filterLims[p][fkey] != null){
-									params.filterLims[p][fkey] = []
-									params.filterLims[p][fkey].push(params.parts.options.filterLims[p][fkey][0]);
-									params.filterLims[p][fkey].push(params.parts.options.filterLims[p][fkey][1]);
-								}
-							}
-						}
-
-					}
-				}
-			}
+            for (k=0; k<params.fkeys[p].length; k++){
+                var fkey = params.fkeys[p][k]
+                if (params.parts.options.filterLims[p].hasOwnProperty(fkey)){
+                    if (params.parts.options.filterLims[p][fkey] != null){
+                        params.filterLims[p][fkey] = []
+                        params.filterLims[p][fkey].push(params.parts.options.filterLims[p][fkey][0]);
+                        params.filterLims[p][fkey].push(params.parts.options.filterLims[p][fkey][1]);
+                    }
+                }
+            }
 		}
 
 		//filter values
-		if (params.parts.options.hasOwnProperty("filterVals")){
-			if (params.parts.options.filterVals != null){
-				if (params.parts.options.filterVals.hasOwnProperty(p)){
-					if (params.parts.options.filterVals[p] != null){
-						params.updateFilter[p] = true
+		if (params.parts.options.hasOwnProperty("filterVals")&&
+            params.parts.options.filterVals != null &&
+            params.parts.options.filterVals.hasOwnProperty(p) &&
+            params.parts.options.filterVals[p] != null){
 
-						for (k=0; k<params.fkeys[p].length; k++){
-							var fkey = params.fkeys[p][k]
-							if (params.parts.options.filterVals[p].hasOwnProperty(fkey)){
-								if (params.parts.options.filterVals[p][fkey] != null){
-									params.filterVals[p][fkey] = []
-									params.filterVals[p][fkey].push(params.parts.options.filterVals[p][fkey][0]);
-									params.filterVals[p][fkey].push(params.parts.options.filterVals[p][fkey][1]);
-								}
-							}
-						}
-
-					}
-				}
+            params.updateFilter[p] = true
+            for (k=0; k<params.fkeys[p].length; k++){
+                var fkey = params.fkeys[p][k]
+                if (params.parts.options.filterVals[p].hasOwnProperty(fkey)){
+                    if (params.parts.options.filterVals[p][fkey] != null){
+                        params.filterVals[p][fkey] = []
+                        params.filterVals[p][fkey].push(params.parts.options.filterVals[p][fkey][0]);
+                        params.filterVals[p][fkey].push(params.parts.options.filterVals[p][fkey][1]);
+                    }
+                }
 			}
 		}
 
 
 		//colormap limits
-		if (params.parts.options.hasOwnProperty("colormapLims")){
-			if (params.parts.options.colormapLims != null){
-				if (params.parts.options.colormapLims.hasOwnProperty(p)){
-					if (params.parts.options.colormapLims[p] != null){
-						params.updateColormap[p] = true
+		if (params.parts.options.hasOwnProperty("colormapLims") &&
+            params.parts.options.colormapLims != null &&
+            params.parts.options.colormapLims.hasOwnProperty(p) &&
+            params.parts.options.colormapLims[p] != null){
+			params.updateColormap[p] = true
 
-						for (k=0; k<params.ckeys[p].length; k++){
-							var ckey = params.ckeys[p][k]
-							if (params.parts.options.colormapLims[p].hasOwnProperty(ckey)){
-								if (params.parts.options.colormapLims[p][ckey] != null){
-                                    console.log("setting colormap lim to",
-                                        params.parts.options.colormapLims[p][ckey])
-									params.colormapLims[p][ckey] = []
-									params.colormapLims[p][ckey].push(params.parts.options.colormapLims[p][ckey][0]);
-									params.colormapLims[p][ckey].push(params.parts.options.colormapLims[p][ckey][1]);
-								}
-							}
-						}
-
-					}
-				}
-			}
+            for (k=0; k<params.ckeys[p].length; k++){
+                var ckey = params.ckeys[p][k]
+                if (params.parts.options.colormapLims[p].hasOwnProperty(ckey)){
+                    if (params.parts.options.colormapLims[p][ckey] != null){
+                        console.log("setting colormap lim to",
+                            params.parts.options.colormapLims[p][ckey])
+                        params.colormapLims[p][ckey] = []
+                        params.colormapLims[p][ckey].push(params.parts.options.colormapLims[p][ckey][0]);
+                        params.colormapLims[p][ckey].push(params.parts.options.colormapLims[p][ckey][1]);
+                    }
+                }
+            }
 		}
 
 		//colormap values
-		if (params.parts.options.hasOwnProperty("colormapVals")){
-			if (params.parts.options.colormapVals != null){
-				if (params.parts.options.colormapVals.hasOwnProperty(p)){
-					if (params.parts.options.colormapVals[p] != null){
-						params.updateColormap[p] = true
-
-						for (k=0; k<params.ckeys[p].length; k++){
-							var ckey = params.ckeys[p][k]
-							if (params.parts.options.colormapVals[p].hasOwnProperty(ckey)){
-								if (params.parts.options.colormapVals[p][ckey] != null){
-									params.colormapVals[p][ckey] = []
-									params.colormapVals[p][ckey].push(params.parts.options.colormapVals[p][ckey][0]);
-									params.colormapVals[p][ckey].push(params.parts.options.colormapVals[p][ckey][1]);
-								}
-							}
-						}
-
-					}
-				}
-			}
+		if (params.parts.options.hasOwnProperty("colormapVals") &&
+            params.parts.options.colormapVals != null && 
+            params.parts.options.colormapVals.hasOwnProperty(p) &&
+            params.parts.options.colormapVals[p] != null){
+            params.updateColormap[p] = true
+            for (k=0; k<params.ckeys[p].length; k++){
+                var ckey = params.ckeys[p][k]
+                if (params.parts.options.colormapVals[p].hasOwnProperty(ckey) &&
+                    params.parts.options.colormapVals[p][ckey] != null){
+                    params.colormapVals[p][ckey] = [
+                        params.parts.options.colormapVals[p][ckey][0],
+                        params.parts.options.colormapVals[p][ckey][1]]
+                }
+            }
 		}
 
         //start plotting with a colormap
-		if (params.parts.options.hasOwnProperty("showColormap")){
-			if (params.parts.options.showColormap != null){
-				if (params.parts.options.showColormap.hasOwnProperty(p)){
-					if (params.parts.options.showColormap[p] == true){
-						params.updateColormap[p] = true
-						params.showColormap[p] = true;
-						if (params.haveUI){
-							elm = document.getElementById(p+'colorCheckBox');
-							elm.checked = true;
-							elm.value = true;
-						}
-					}
-				}
-			}
+		if (params.parts.options.hasOwnProperty("showColormap") &&
+            params.parts.options.showColormap != null &&
+            params.parts.options.showColormap.hasOwnProperty(p) &&
+            params.parts.options.showColormap[p] == true){
+            params.updateColormap[p] = true
+            params.showColormap[p] = true;
+            if (params.haveUI){
+                elm = document.getElementById(p+'colorCheckBox');
+                elm.checked = true;
+                elm.value = true;
+            }
 		}//start plotting with a colormap
 
         //choose which colormap to use
@@ -593,7 +572,6 @@ function applyOptions(){
                     params.ckeys[p][idx],
                     p);
 		}//select the colormap variable to color by
-
 	}//particle specific options
 }//apply options
 
@@ -725,7 +703,6 @@ function initPVals(){
 			 
 			}
 			params.velType[p] = 'line';
-			//console.log(p, params.parts[p].VelVals, params.parts[p].Velocities)
 		}
 		
 		//filters
@@ -737,7 +714,9 @@ function initPVals(){
 				}
 				var fkey = params.fkeys[p][k];
 				//calculate limits for the filters
+
 				if (params.parts[p][fkey] != null){
+
 					var m = calcMinMax(p,fkey)
 					params.filterLims[p][fkey] = [m.min, m.max];
 					params.filterVals[p][fkey] = [m.min, m.max];
@@ -771,15 +750,6 @@ function initPVals(){
                     params.ckeys[p][k] = "magVelocities";
                 }
                 var ckey = params.ckeys[p][k];
-                // if we need to set default colormap vals
-                /*
-                console.log(p,'default value:',params.colormapLims[ckey],ckey,
-                    params.parts.options.colormapVals[p][ckey],
-                    params.parts.options.colormapLims[p][ckey],
-                    params.parts.options.colormapVals[p[ckey]]
-                )
-                */
-
                 // if this array even exists in the particle data
                 if (params.parts[p][ckey] != null){
                     //could probably take results from filter to save time, but will do this again to be safe
@@ -790,7 +760,6 @@ function initPVals(){
                         params.colormapLims[p][ckey] = [m.min, m.max];
                     }
                     else{
-                        console.log('setting the colormap lims to preset')
                         params.colormapLims[p][ckey] = params.parts.options.colormapLims[p][ckey];
                     }// if we need to set the default colormap lims
                     if (!params.parts.options.colormapVals[p].hasOwnProperty(ckey) || 
@@ -799,20 +768,13 @@ function initPVals(){
                         params.colormapVals[p][ckey] = [m.min, m.max];
                     }
                     else{
-                        params.colormapVals[p][ckey] =[params.parts.options.colormapVals[p][ckey][0],
-                           params.parts.options.colormapVals[p][ckey][1]];
-                        /*
-                        console.log('setting the colormap vals to preset',
-                            p,ckey,
-                            params.colormapVals[p][ckey],
-                            params.colormapVals[p],
-                            params.colormapVals[p]['magVelocities']);
-                        */
+                        params.colormapVals[p][ckey] =[
+                            params.parts.options.colormapVals[p][ckey][0],
+                            params.parts.options.colormapVals[p][ckey][1]];
                     }// if we need to set default colormap vals
                 }// if this array even exists in the particle data
             }// for each ckey
 		}// if there are things to colormap by
-        //console.log('after setting values',params.colormapVals.Gas)
 	}
 }
 
@@ -1136,40 +1098,26 @@ function clearloading(){
 
 function beginApp(){
     // define each particle group into params
-    console.log(params.reset)
 	initPVals();
-    console.log(params)
-    console.log(params.reset)
 
     // create webgl context and initialize camera and input
 	initScene();
-    console.log(params.reset)
 
 	// apply inital app-state from the options file
 	applyOptions();
-    console.log(params.reset)
-	
+    p='Gas'
+    ckey='magVelocities'
+
     //
 	initColumnDensity();
-    console.log(params.reset)
 
-    // destroy the UI if we are resetting to a preset file
+    // destroy the existing UI if we are resetting 
     if (params.reset){
-        var elm = document.getElementsByClassName('UIcontainer')[0];
-        elm.innerHTML=""
-        //d3.select('#UIcontainer').html("");
-        /*
-        //resize the bottom of the UI if necessary
-        var i = params.partsKeys.length-1;
-        var pID = params.partsKeys[i];
-        if (!params.gtoggle[pID]){
-            var elm = document.getElementById(pID+'Dropbtn');
-            showFunction(elm);
-        }
-        //destroy the particle portion of the UI and recreate it (simplest option, but not really destroying all elements...)
-        d3.select('#particleUI').html("");
-        */
+        var UIcontainer = document.getElementsByClassName('UIcontainer')[0];
+        UIcontainer.innerHTML=""
     }
+
+    
 
     // programatically create nested dropdown UI with d3.js
 	createUI();
@@ -1177,6 +1125,7 @@ function beginApp(){
 	mouseDown = false;  //silly fix
 
 	// create threejs meshes 
+
 	drawScene();
 }
 
